@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // Brand Colors
@@ -82,7 +83,7 @@ class AppTheme {
 
   // Text Styles
   static TextStyle getTitleStyle(BuildContext context) {
-    return TextStyle(
+    return GoogleFonts.outfit(
       fontSize: 26,
       fontWeight: FontWeight.bold,
       color: getTextColor(context),
@@ -90,21 +91,21 @@ class AppTheme {
   }
 
   static TextStyle getSubtitleStyle(BuildContext context) {
-    return TextStyle(
+    return GoogleFonts.outfit(
       fontSize: 16,
       color: getSubtitleColor(context),
       height: 1.5,
     );
   }
 
-  static const TextStyle buttonTextStyle = TextStyle(
+  static TextStyle get buttonTextStyle => GoogleFonts.outfit(
     fontSize: 16,
     fontWeight: FontWeight.bold,
     color: Colors.white,
   );
 
   static TextStyle getSkipButtonStyle(BuildContext context) {
-    return TextStyle(
+    return GoogleFonts.outfit(
       color: getTextColor(context).withOpacity(0.8),
       fontSize: 16,
       fontWeight: FontWeight.bold,
