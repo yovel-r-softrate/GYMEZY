@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../models/gym.dart';
 import '../theme/app_theme.dart';
+import '../widgets/custom_calendar.dart';
 import 'payment_summary_screen.dart';
 
 class BookingSessionScreen extends StatefulWidget {
@@ -142,12 +143,12 @@ class _BookingSessionScreenState extends State<BookingSessionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = AppTheme.isDark(context);
     final backgroundColor = AppTheme.getBackgroundColor(context);
-    final cardColor = isDark ? const Color(0xFF1E1E1E) : Colors.white;
+    final cardColor = AppTheme.getCardColor(context);
     final textColor = AppTheme.getTextColor(context);
     final subtitleColor = AppTheme.getSubtitleColor(context);
-    final borderColor = isDark ? Colors.white10 : const Color(0xFFE2E8F0);
+    final borderColor = AppTheme.getBorderColor(context);
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -528,7 +529,7 @@ class _BookingSessionScreenState extends State<BookingSessionScreen> {
             : cardColor,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: isSelected ? AppTheme.primaryColor : borderColor,
+          color: isSelected ? (isDark ? const Color(0xFF60A5FA) : AppTheme.primaryColor) : borderColor,
           width: isSelected ? 1.5 : 1,
         ),
       ),
@@ -544,7 +545,7 @@ class _BookingSessionScreenState extends State<BookingSessionScreen> {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: AppTheme.primaryColor.withOpacity(0.1),
+                    color: isDark ? const Color(0xFF3B82F6).withOpacity(0.2) : AppTheme.primaryColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(icon, color: isDark ? const Color(0xFF93C5FD) : AppTheme.primaryColor, size: 22),
@@ -565,7 +566,10 @@ class _BookingSessionScreenState extends State<BookingSessionScreen> {
                       const SizedBox(height: 2),
                       Text(
                         subtitle,
-                        style: TextStyle(fontSize: 12, color: subtitleColor),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: subtitleColor,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -581,7 +585,7 @@ class _BookingSessionScreenState extends State<BookingSessionScreen> {
                 ),
                 Icon(
                   isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
-                  color: isSelected ? AppTheme.primaryColor : subtitleColor,
+                  color: isSelected ? (isDark ? const Color(0xFF60A5FA) : AppTheme.primaryColor) : subtitleColor,
                   size: 20,
                 ),
               ],
@@ -679,64 +683,13 @@ class _BookingSessionScreenState extends State<BookingSessionScreen> {
 
                 const SizedBox(height: 20),
 
-                Text(
-                  "Select Start Date",
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: textColor),
-                ),
-                const SizedBox(height: 10),
-
-                // Horizontal 7-day Start Date Selector
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  physics: const BouncingScrollPhysics(),
-                  child: Row(
-                    children: List.generate(7, (i) {
-                      final date = DateTime.now().add(Duration(days: i));
-                      final isSelected = _selectedStartDate.day == date.day &&
-                          _selectedStartDate.month == date.month &&
-                          _selectedStartDate.year == date.year;
-                      const dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-
-                      return GestureDetector(
-                        onTap: () => setState(() => _selectedStartDate = date),
-                        child: Container(
-                          width: 58,
-                          margin: const EdgeInsets.only(right: 10),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? AppTheme.primaryColor
-                                : (isDark ? const Color(0xFF262626) : const Color(0xFFF1F5F9)),
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: isSelected ? Colors.transparent : borderColor,
-                            ),
-                          ),
-                          child: Column(
-                            children: [
-                              Text(
-                                dayLabels[date.weekday - 1],
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  color: isSelected ? Colors.white70 : subtitleColor,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                date.day.toString(),
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: isSelected ? Colors.white : textColor,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    }),
-                  ),
+                // Horizontal Start Date Selector
+                HorizontalDayStripCalendar(
+                  selectedDate: _selectedStartDate,
+                  daysCount: 14,
+                  wrapInCard: true,
+                  showMonthHeader: true,
+                  onDateSelected: (date) => setState(() => _selectedStartDate = date),
                 ),
 
                 const SizedBox(height: 16),
@@ -850,83 +803,24 @@ class _BookingSessionScreenState extends State<BookingSessionScreen> {
                 ),
                 const SizedBox(height: 12),
 
-                // Calendar Month Grid View (30 Days)
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: cardColor,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: borderColor),
-                  ),
-                  child: Column(
-                    children: [
-                      // Weekday Headers
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d) {
-                          return Text(
-                            d,
-                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: subtitleColor),
-                          );
-                        }).toList(),
-                      ),
-                      const SizedBox(height: 12),
-
-                      // Grid of Days
-                      GridView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 7,
-                          mainAxisSpacing: 8,
-                          crossAxisSpacing: 8,
-                          childAspectRatio: 1.0,
-                        ),
-                        itemCount: 28, // 4 weeks
-                        itemBuilder: (context, index) {
-                          final date = DateTime.now().add(Duration(days: index));
-                          final isSelected = _customSelectedDates.any(
-                            (d) => d.day == date.day && d.month == date.month && d.year == date.year,
-                          );
-
-                          return GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                if (isSelected) {
-                                  _customSelectedDates.removeWhere(
-                                    (d) => d.day == date.day && d.month == date.month && d.year == date.year,
-                                  );
-                                } else {
-                                  _customSelectedDates.add(date);
-                                }
-                              });
-                            },
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 200),
-                              decoration: BoxDecoration(
-                                color: isSelected
-                                    ? AppTheme.primaryColor
-                                    : (isDark ? const Color(0xFF262626) : const Color(0xFFF8FAFC)),
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: isSelected ? Colors.transparent : borderColor,
-                                ),
-                              ),
-                              alignment: Alignment.center,
-                              child: Text(
-                                "${date.day}",
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                                  color: isSelected ? Colors.white : textColor,
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
+                // Calendar Month Grid View (allows current month + 3 months)
+                MonthlyGridCalendar(
+                  multiSelectedDates: _customSelectedDates,
+                  maxMonthsAhead: 3,
+                  onDateToggled: (date) {
+                    setState(() {
+                      final isSelected = _customSelectedDates.any(
+                        (d) => d.day == date.day && d.month == date.month && d.year == date.year,
+                      );
+                      if (isSelected) {
+                        _customSelectedDates.removeWhere(
+                          (d) => d.day == date.day && d.month == date.month && d.year == date.year,
+                        );
+                      } else {
+                        _customSelectedDates.add(date);
+                      }
+                    });
+                  },
                 ),
 
                 const SizedBox(height: 16),
@@ -1119,63 +1013,12 @@ class _BookingSessionScreenState extends State<BookingSessionScreen> {
                 const SizedBox(height: 18),
 
                 // Select Date Strip
-                Text(
-                  "Select Date",
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: textColor),
-                ),
-                const SizedBox(height: 10),
-
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  physics: const BouncingScrollPhysics(),
-                  child: Row(
-                    children: List.generate(7, (i) {
-                      final date = DateTime.now().add(Duration(days: i));
-                      final isSelected = _selectedClassDate.day == date.day &&
-                          _selectedClassDate.month == date.month &&
-                          _selectedClassDate.year == date.year;
-                      const dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-
-                      return GestureDetector(
-                        onTap: () => setState(() => _selectedClassDate = date),
-                        child: Container(
-                          width: 58,
-                          margin: const EdgeInsets.only(right: 10),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? AppTheme.primaryColor
-                                : (isDark ? const Color(0xFF262626) : const Color(0xFFF1F5F9)),
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: isSelected ? Colors.transparent : borderColor,
-                            ),
-                          ),
-                          child: Column(
-                            children: [
-                              Text(
-                                dayLabels[date.weekday - 1],
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  color: isSelected ? Colors.white70 : subtitleColor,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                date.day.toString(),
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: isSelected ? Colors.white : textColor,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    }),
-                  ),
+                HorizontalDayStripCalendar(
+                  selectedDate: _selectedClassDate,
+                  daysCount: 14,
+                  wrapInCard: true,
+                  showMonthHeader: true,
+                  onDateSelected: (date) => setState(() => _selectedClassDate = date),
                 ),
 
                 const SizedBox(height: 20),

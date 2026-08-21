@@ -13,13 +13,12 @@ class CustomFloatingNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = AppTheme.isDark(context);
 
     final navItems = [
       {'icon': Icons.explore_outlined, 'activeIcon': Icons.explore, 'label': 'Explore'},
       {'icon': Icons.calendar_today_outlined, 'activeIcon': Icons.calendar_today, 'label': 'Bookings'},
-      {'icon': Icons.card_membership_outlined, 'activeIcon': Icons.card_membership, 'label': 'Plans'},
-      {'icon': Icons.chat_bubble_outline, 'activeIcon': Icons.chat_bubble, 'label': 'Messages'},
+      {'icon': Icons.card_membership_outlined, 'activeIcon': Icons.card_membership, 'label': 'Memberships'},
       {'icon': Icons.person_outline, 'activeIcon': Icons.person, 'label': 'Profile'},
     ];
 
@@ -27,12 +26,12 @@ class CustomFloatingNavBar extends StatelessWidget {
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 20),
       decoration: BoxDecoration(
         color: isDark
-            ? const Color(0xFF1E1E1E).withOpacity(0.95)
-            : Colors.white.withOpacity(0.95),
+            ? AppTheme.darkCard.withValues(alpha: 0.95)
+            : Colors.white.withValues(alpha: 0.95),
         borderRadius: BorderRadius.circular(28),
         border: Border.all(
           color: isDark
-              ? Colors.white.withOpacity(0.1)
+              ? Colors.white.withValues(alpha: 0.1)
               : Colors.black12,
           width: 1,
         ),

@@ -5,6 +5,7 @@ import '../models/gym.dart';
 import '../theme/app_theme.dart';
 import '../widgets/details_popups.dart';
 import 'booking_session_screen.dart';
+import 'buy_membership_screen.dart';
 import '../widgets/scaffoldmessage.dart';
 
 class GymDetailsScreen extends StatefulWidget {
@@ -1216,10 +1217,7 @@ class _GymDetailsScreenState extends State<GymDetailsScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => BookingSessionScreen(
-                            gym: widget.gym,
-                            initialCategory: 'Gym',
-                          ),
+                          builder: (context) => BuyMembershipScreen(gym: widget.gym),
                         ),
                       );
                     },

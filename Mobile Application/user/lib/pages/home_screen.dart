@@ -6,6 +6,9 @@ import '../data/mock_data.dart';
 import 'gym_details_screen.dart';
 import '../widgets/custom_floating_nav_bar.dart';
 import '../widgets/scaffoldmessage.dart';
+import 'my_bookings_screen.dart';
+import 'my_memberships_screen.dart';
+import 'profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -163,10 +166,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final List<Widget> tabs = [
       _buildExploreTab(context),
-      _buildPlaceholderScreen("My Bookings", Icons.calendar_today_rounded),
-      _buildPlaceholderScreen("Memberships & Passes", Icons.card_membership_rounded),
-      _buildPlaceholderScreen("Messages", Icons.chat_bubble_rounded),
-      _buildPlaceholderScreen("Profile & Settings", Icons.person_rounded),
+      const MyBookingsScreen(),
+      const MyMembershipsScreen(),
+      ProfileScreen(
+        onNavigateToBookings: () => setState(() => _currentIndex = 1),
+        onNavigateToMemberships: () => setState(() => _currentIndex = 2),
+      ),
     ];
 
     return Scaffold(
@@ -187,41 +192,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildPlaceholderScreen(String title, IconData icon) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF1E1E1E) : const Color(0xFFF1F5F9),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, size: 48, color: AppTheme.primaryColor),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: AppTheme.getTextColor(context),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            "Manage your $title here",
-            style: TextStyle(
-              fontSize: 14,
-              color: AppTheme.getSubtitleColor(context),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildExploreTab(BuildContext context) {
     return SingleChildScrollView(

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../models/gym.dart';
+import '../models/booking_item.dart';
 import '../theme/app_theme.dart';
+import '../data/booking_repository.dart';
+import 'booking_details_screen.dart';
 
 class PaymentSummaryScreen extends StatefulWidget {
   final Gym gym;
@@ -98,14 +101,17 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                         "Booking ID:",
                         style: TextStyle(fontSize: 12, color: subtitleColor),
                       ),
-                      Text(
-                        "GZ-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}",
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: textColor,
-                        ),
-                      ),
+                      Builder(builder: (context) {
+                        final displayId = "GZ-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}";
+                        return Text(
+                          displayId,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: textColor,
+                          ),
+                        );
+                      }),
                     ],
                   ),
                 ),
@@ -115,7 +121,36 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                   height: 48,
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.of(context).popUntil((route) => route.isFirst);
+                      Navigator.pop(context); // Close dialog
+                      final bookingId = "GZ-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}";
+                      final newBooking = BookingItem(
+                        id: bookingId,
+                        customerId: 'CUST789012',
+                        gymName: widget.gym.name,
+                        gymLocation: widget.gym.location,
+                        gymImageUrl: widget.gym.imageUrl,
+                        type: 'Gym Access',
+                        sessionSubtitle: widget.bookingTitle,
+                        date: widget.datesSummary,
+                        time: widget.timeSlot ?? '6:00 AM - 7:00 AM',
+                        daysBooked: "${widget.sessionsCount} ${widget.sessionsCount > 1 ? 'Sessions' : 'Session'}",
+                        amountPaid: _totalAmount,
+                        paymentMode: _selectedPaymentMethod,
+                        otp: (100000 + DateTime.now().millisecond * 899).toInt().toString().padLeft(6, '7'),
+                        status: 'Upcoming',
+                        icon: Icons.fitness_center_rounded,
+                        accentColor: AppTheme.primaryColor,
+                      );
+
+                      // Real-time synchronization across the entire app
+                      BookingRepository.instance.addBooking(newBooking);
+
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => BookingDetailsScreen(booking: newBooking),
+                        ),
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.secondaryColor,
@@ -124,9 +159,19 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     ),
                     child: const Text(
-                      "Go to Home",
+                      "View Pass & OTP",
                       style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                     ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).popUntil((route) => route.isFirst);
+                  },
+                  child: Text(
+                    "Back to Home",
+                    style: TextStyle(fontSize: 13, color: subtitleColor),
                   ),
                 ),
               ],
